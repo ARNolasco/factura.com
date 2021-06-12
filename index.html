@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>Factura.com</title>
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-md-center align-items-center">
+            <div class="col col-lg-6  my-5">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="file" name="file" id="file">
+                        <a download="info.txt" id="downloadlink" style="display: none">See winner</a>
+                    </div>
+                  </div>
+              </div>
+        </div>
+    </div>
+</body>
+<script>
+    // function detect the chnages of the input type file 
+    document.getElementById('file').onchange = function(){
+
+        var file = this.files[0];
+        var data = []; 
+        var winner = 0;
+        var historial = 0;
+        var differences = 0;
+        var reader = new FileReader(); // new object to read file
+        reader.onload = function(progressEvent){
+            // Read the file line by lines
+            var lines = this.result.split('\n');
+            for(var i = 0; i < lines.length; i++){
+                //console.log(lines[line]);
+                data.push(lines[i].replace(/[^a-zA-Z0-9 ]/g, "")); // save the data in a array and erase the special elements 
+            }
+            //console.log(data);
+            for(i = 1; i <= parseInt(data[0]); i++){ // get the first number in array to determinate the number of rows and limit 
+                //console.log(data[i].split(" "));
+                var round = data[i].split(" ");
+                differences = parseInt(round[0]) - parseInt(round[1]); // calculate the differences 
+                if (Math.abs(differences) > historial){ // validate if in the new round have a differences grater than the record to reduce the time of procesor 
+                    historial = Math.abs(differences); // Caonverto to absolute 
+                    winner = Math.abs(round[0]) > Math.abs(round[1]) ? 1 : 2; // check who is the winner     
+                }
+                //console.log(winner + " " + historial);
+            }
+            // block to create a text file
+            var textFile = null,
+            makeTextFile = function (text) {
+                var data = new Blob([text], {type: 'text/plain'});
+
+                if (textFile !== null) {
+                    window.URL.revokeObjectURL(textFile);
+                }
+                textFile = window.URL.createObjectURL(data);
+                return textFile;
+            };
+
+            var link = document.getElementById('downloadlink'); // get the references to link button
+            link.href = makeTextFile(winner + " " + historial); // whire the info in the file
+            link.style.display = 'block'; // disply button to download file
+            // end of block
+        };
+       
+        
+        reader.readAsText(file);
+    };
+</script>
+</html>
